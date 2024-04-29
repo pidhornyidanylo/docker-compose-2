@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo
+    container_name: mongo_container
+    volumes:
+      - mongo-data:/data/db
+    ports: 
+      - "27017:27017"
+  server:
+    build: ./server
+    container_name: server_container
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongo
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/books
+  client:
+    build: ./client
+    container_name: client_container
+    ports:
+      - "8080:8080"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - server
+    volumes:
+      - ./client:/client
+      - /client/node_modules
+volumes:
+  mongo-data:
